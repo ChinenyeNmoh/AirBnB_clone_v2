@@ -24,99 +24,99 @@ class TestHBNBCommand(unittest.TestCase):
     def test_fs_create(self):
         """Tests the create command with the file storage.
         """
-        with patch('sys.stdout', new=StringIO()) as cout:
+        with patch('sys.stdout', new=StringIO()) as output:
             conn = HBNBCommand()
             conn.onecmd('create City name="Texas"')
-            mdl_id = cout.getvalue().strip()
-            clear_stream(cout)
+            mdl_id = output.getvalue().strip()
+            clear_stream(output)
             self.assertIn('City.{}'.format(mdl_id), storage.all().keys())
             conn.onecmd('show City {}'.format(mdl_id))
-            self.assertIn("'name': 'Texas'", cout.getvalue().strip())
-            clear_stream(cout)
+            self.assertIn("'name': 'Texas'", output.getvalue().strip())
+            clear_stream(output)
             conn.onecmd('create User name="James" age=17 height=5.9')
-            mdl_id = cout.getvalue().strip()
+            mdl_id = output.getvalue().strip()
             self.assertIn('User.{}'.format(mdl_id), storage.all().keys())
-            clear_stream(cout)
+            clear_stream(output)
             conn.onecmd('show User {}'.format(mdl_id))
-            self.assertIn("'name': 'James'", cout.getvalue().strip())
-            self.assertIn("'age': 17", cout.getvalue().strip())
-            self.assertIn("'height': 5.9", cout.getvalue().strip())
+            self.assertIn("'name': 'James'", output.getvalue().strip())
+            self.assertIn("'age': 17", output.getvalue().strip())
+            self.assertIn("'height': 5.9", output.getvalue().strip())
 
     @unittest.skipIf(
         os.getenv('HBNB_TYPE_STORAGE') != 'db', 'DBStorage test')
     def test_db_create(self):
         """Tests the create command with the database storage.
         """
-        with patch('sys.stdout', new=StringIO()) as cout:
+        with patch('sys.stdout', new=StringIO()) as output:
             conn = HBNBCommand()
             # creating a model with non-null attribute(s)
             with self.assertRaises(sqlalchemy.exc.OperationalError):
                 conn.onecmd('create User')
             # creating a User instance
-            clear_stream(cout)
+            clear_stream(output)
             conn.onecmd('create User email="john25@gmail.com" password="123"')
-            mdl_id = cout.getvalue().strip()
-            dbc = MySQLdb.connect(
+            mdl_id = output.getvalue().strip()
+            db_meta = MySQLdb.connect(
                 host=os.getenv('HBNB_MYSQL_HOST'),
                 port=3306,
                 user=os.getenv('HBNB_MYSQL_USER'),
                 passwd=os.getenv('HBNB_MYSQL_PWD'),
                 db=os.getenv('HBNB_MYSQL_DB')
             )
-            cursor = dbc.cursor()
+            cursor = db_meta.cursor()
             cursor.execute('SELECT * FROM users WHERE id="{}"'.format(mdl_id))
             result = cursor.fetchone()
             self.assertTrue(result is not None)
             self.assertIn('john25@gmail.com', result)
             self.assertIn('123', result)
             cursor.close()
-            dbc.close()
+            db_meta.close()
 
     @unittest.skipIf(
         os.getenv('HBNB_TYPE_STORAGE') != 'db', 'DBStorage test')
     def test_db_show(self):
         """Tests the show command with the database storage.
         """
-        with patch('sys.stdout', new=StringIO()) as cout:
+        with patch('sys.stdout', new=StringIO()) as output:
             conn = HBNBCommand()
             # showing a User instance
             obj = User(email="john25@gmail.com", password="123")
-            dbc = MySQLdb.connect(
+            db_meta = MySQLdb.connect(
                 host=os.getenv('HBNB_MYSQL_HOST'),
                 port=3306,
                 user=os.getenv('HBNB_MYSQL_USER'),
                 passwd=os.getenv('HBNB_MYSQL_PWD'),
                 db=os.getenv('HBNB_MYSQL_DB')
             )
-            cursor = dbc.cursor()
+            cursor = db_meta.cursor()
             cursor.execute('SELECT * FROM users WHERE id="{}"'.format(obj.id))
             result = cursor.fetchone()
             self.assertTrue(result is None)
             conn.onecmd('show User {}'.format(obj.id))
             self.assertEqual(
-                cout.getvalue().strip(),
+                output.getvalue().strip(),
                 '** no instance found **'
             )
             obj.save()
-            dbc = MySQLdb.connect(
+            db_meta = MySQLdb.connect(
                 host=os.getenv('HBNB_MYSQL_HOST'),
                 port=3306,
                 user=os.getenv('HBNB_MYSQL_USER'),
                 passwd=os.getenv('HBNB_MYSQL_PWD'),
                 db=os.getenv('HBNB_MYSQL_DB')
             )
-            cursor = dbc.cursor()
+            cursor = db_meta.cursor()
             cursor.execute('SELECT * FROM users WHERE id="{}"'.format(obj.id))
-            clear_stream(cout)
+            clear_stream(output)
             conn.onecmd('show User {}'.format(obj.id))
             result = cursor.fetchone()
             self.assertTrue(result is not None)
             self.assertIn('john25@gmail.com', result)
             self.assertIn('123', result)
-            self.assertIn('john25@gmail.com', cout.getvalue())
-            self.assertIn('123', cout.getvalue())
+            self.assertIn('john25@gmail.com', output.getvalue())
+            self.assertIn('123', output.getvalue())
             cursor.close()
-            dbc.close()
+            db_meta.close()
 
     @unittest.skipIf(
         os.getenv('HBNB_TYPE_STORAGE') != 'db', 'DBStorage test')
