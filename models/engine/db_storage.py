@@ -25,12 +25,12 @@ class DBStorage:
         pwd = getenv("HBNB_MYSQL_PWD")
         host = getenv("HBNB_MYSQL_HOST")
         db = getenv("HBNB_MYSQL_DB")
-        env = getenv("HBNB_ENV", "none")
+        envv = getenv("HBNB_ENV", "none")
 
         self.__engine = create_engine('mysql+mysqldb://{}:{}@{}/{}'.format(
             user, pwd, host, db), pool_pre_ping=True)
 
-        if env == 'test':
+        if envv == 'test':
             Base.metadata.drop_all(self.__engine)
 
     def all(self, cls=None):
@@ -43,16 +43,16 @@ class DBStorage:
             if type(cls) is str:
                 cls = eval(cls)
             query = self.__session.query(cls)
-            for items in query:
-                key = "{}.{}".format(type(items).__name__, items.id)
-                dic[key] = items
+            for elem in query:
+                key = "{}.{}".format(type(elem).__name__, elem.id)
+                dic[key] = elem
         else:
-            listArray = [State, City, User, Place, Review, Amenity]
-            for lists in listArray:
-                query = self.__session.query(lists)
-                for items in query:
-                    key = "{}.{}".format(type(items).__name__, items.id)
-                    dic[key] = items
+            lista = [State, City, User, Place, Review, Amenity]
+            for clase in lista:
+                query = self.__session.query(clase)
+                for elem in query:
+                    key = "{}.{}".format(type(elem).__name__, elem.id)
+                    dic[key] = elem
         return (dic)
 
     def new(self, obj):
@@ -72,8 +72,8 @@ class DBStorage:
         """Create current database session from the engine
         using a sessionmaker"""
         self.__session = Base.metadata.create_all(self.__engine)
-        sessions = sessionmaker(bind=self.__engine, expire_on_commit=False)
-        Session = scoped_session(sections)
+        factory = sessionmaker(bind=self.__engine, expire_on_commit=False)
+        Session = scoped_session(factory)
         self.__session = Session()
 
     def close(self):
