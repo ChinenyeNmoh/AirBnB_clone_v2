@@ -15,7 +15,3 @@ class Amenity(BaseModel, Base):
                                        back_populates="amenities")
     else:
         name = ""
-
-    def __init__(self, *args, **kwargs):
-        """initializes Amenity"""
-        super().__init__(*args, **kwargs)
