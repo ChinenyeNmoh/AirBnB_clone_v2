@@ -25,7 +25,7 @@ class BaseModel:
         self.id = str(uuid4())
         print("kwargs:", kwargs)
         if kwargs:
-            allowed_attributes = ["id", "created_at", "updated_at"]
+            allowed_attributes = ["id", "created_at", "updated_at", "__class__"]
             for key, value in kwargs.items():
                 if key == "created_at" or key == "updated_at":
                     value = datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%f")
