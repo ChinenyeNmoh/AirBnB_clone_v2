@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-""" Place Module for HBNB project """
+"""Defines the Place class."""
 import models
 from os import getenv
 from models.base_model import Base
@@ -18,7 +18,6 @@ from os import getenv
 import models
 
 
-
 association_table = Table("place_amenity", Base.metadata,
                           Column("place_id", String(60),
                                  ForeignKey("places.id"),
@@ -27,8 +26,11 @@ association_table = Table("place_amenity", Base.metadata,
                                  ForeignKey("amenities.id"),
                                  primary_key=True, nullable=False))
 
-class Place(BaseModel):
-    """ A place to stay """
+
+class Place(BaseModel, Base):
+    """Represents a Place for a MySQL database.
+    Inherits from SQLAlchemy Base and links to the MySQL table places
+    """
     __tablename__ = "places"
     city_id = Column(String(60), ForeignKey("cities.id"), nullable=False)
     user_id = Column(String(60), ForeignKey("users.id"), nullable=False)

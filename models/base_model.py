@@ -8,6 +8,7 @@ from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 
+
 class BaseModel:
     """A base class for all hbnb models"""
     id = Column(String(60), primary_key=True, nullable=False)
@@ -65,3 +66,4 @@ class BaseModel:
     def delete(self):
         """delete the current instance from storage"""
         from models import storage
+        storage.delete(self)

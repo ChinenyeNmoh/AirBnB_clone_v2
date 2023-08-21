@@ -1,9 +1,6 @@
 #!/usr/bin/python3
-"""This module defines a class to manage db storage for hbnb clone"""
+"""Defines the DBStorage engine"""
 from os import getenv
-from sqlalchemy import create_engine, MetaData
-from sqlalchemy.orm import sessionmaker, scoped_session
-import models
 from models.base_model import Base
 from models.base_model import BaseModel
 from models.amenity import Amenity
@@ -12,10 +9,19 @@ from models.place import Place
 from models.review import Review
 from models.state import State
 from models.user import User
+from sqlalchemy import create_engine
+from sqlalchemy.orm import relationship
+from sqlalchemy.orm import scoped_session
+from sqlalchemy.orm import sessionmaker
 
 
 class DBStorage:
-    """SQL database storage"""
+    """Represents a database storage engine.
+    Attributes:
+        __engine (sqlalchemy.Engine): The working SQLAlchemy engine.
+        __session (sqlalchemy.Session): The working SQLAlchemy session.
+    """
+
     __engine = None
     __session = None
 
@@ -25,12 +31,12 @@ class DBStorage:
         pwd = getenv("HBNB_MYSQL_PWD")
         host = getenv("HBNB_MYSQL_HOST")
         db = getenv("HBNB_MYSQL_DB")
-        env = getenv("HBNB_ENV", "none")
+        envv = getenv("HBNB_ENV", "none")
 
         self.__engine = create_engine('mysql+mysqldb://{}:{}@{}/{}'.format(
             user, pwd, host, db), pool_pre_ping=True)
 
-        if env == 'test':
+        if envv == 'test':
             Base.metadata.drop_all(self.__engine)
 
     def all(self, cls=None):
@@ -43,39 +49,39 @@ class DBStorage:
             if type(cls) is str:
                 cls = eval(cls)
             query = self.__session.query(cls)
-            for items in query:
-                key = "{}.{}".format(type(items).__name__, items.id)
-                dic[key] = items
+            for elem in query:
+                key = "{}.{}".format(type(elem).__name__, elem.id)
+                dic[key] = elem
         else:
-            listArray = [State, City, User, Place, Review, Amenity]
-            for lists in listArray:
-                query = self.__session.query(lists)
-                for items in query:
-                    key = "{}.{}".format(type(items).__name__, items.id)
-                    dic[key] = items
+            lista = [State, City, User, Place, Review, Amenity]
+            for clase in lista:
+                query = self.__session.query(clase)
+                for elem in query:
+                    key = "{}.{}".format(type(elem).__name__, elem.id)
+                    dic[key] = elem
         return (dic)
 
     def new(self, obj):
-        """add the object to the current database session"""
+        """Add obj to the current database session."""
         self.__session.add(obj)
 
     def save(self):
-        """commit all changes of the current database session"""
+        """Commit all changes to the current database session."""
         self.__session.commit()
 
     def delete(self, obj=None):
-        """delete from the current database session obj if not None"""
+        """Delete obj from the current database session."""
         if obj is not None:
             self.__session.delete(obj)
 
     def reload(self):
-        """Create current database session from the engine
-        using a sessionmaker"""
-        self.__session = Base.metadata.create_all(self.__engine)
-        sessions = sessionmaker(bind=self.__engine, expire_on_commit=False)
-        Session = scoped_session(sections)
+        """Create all tables in the database and initialize a new session."""
+        Base.metadata.create_all(self.__engine)
+        session_factory = sessionmaker(bind=self.__engine,
+                                       expire_on_commit=False)
+        Session = scoped_session(session_factory)
         self.__session = Session()
 
     def close(self):
-        """Remove session"""
+        """Close the working SQLAlchemy session."""
         self.__session.close()
