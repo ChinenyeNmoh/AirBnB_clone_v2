@@ -16,31 +16,20 @@ class BaseModel:
     updated_at = Column(DateTime, default=datetime.utcnow(), nullable=False)
 
     def __init__(self, *args, **kwargs):
-        """Instantiates a new model"""
-        self.id = str(uuid.uuid4())
-        if not kwargs:
-            from models import storage
+        """Initialize a new BaseModel.
 
-            self.created_at = datetime.now()
-            self.updated_at = datetime.now()
-        else:
-            allowed_attributes = ["id", "created_at", "updated_at"]
-            for key, val in kwargs.items():
-                if key in allowed_attributes:
-                    setattr(self, key, val)
-                else:
-                    raise KeyError(f"Invalid attribute: {key}")
-
-            if "created_at" in kwargs:
-                kwargs["created_at"] = datetime.strptime(
-                    kwargs["created_at"], "%Y-%m-%dT%H:%M:%S.%f")
-            else:
-                self.created_at = datetime.now()
-            if "updated_at" in kwargs:
-                kwargs["updated_at"] = datetime.strptime(
-                    kwargs["updated_at"], "%Y-%m-%dT%H:%M:%S.%f")
-            else:
-                self.updated_at = datetime.now()
+        Args:
+            *args (any): Unused.
+            **kwargs (dict): Key/value pairs of attributes.
+        """
+        self.id = str(uuid4())
+        self.created_at = self.updated_at = datetime.utcnow()
+        if kwargs:
+            for key, value in kwargs.items():
+                if key == "created_at" or key == "updated_at":
+                    value = datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%f")
+                if key != "__class__":
+                    setattr(self, key, value)
 
     def __str__(self):
         """Returns a string representation of the instance"""
