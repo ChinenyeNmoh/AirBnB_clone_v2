@@ -23,21 +23,14 @@ class BaseModel:
             **kwargs (dict): Key/value pairs of attributes.
         """
         self.id = str(uuid4())
-        self.created_at = self.updated_at = datetime.utcnow()
         if kwargs:
-            if "created_at" in kwargs:
-                kwargs["created_at"] = datetime.strptime(
-                    kwargs["created_at"], "%Y-%m-%dT%H:%M:%S.%f")
-            else:
-                self.created_at = datetime.now()
-            if "updated_at" in kwargs:
-                kwargs["updated_at"] = datetime.strptime(
-                    kwargs["updated_at"], "%Y-%m-%dT%H:%M:%S.%f")
-            else:
-                self.updated_at = datetime.now()
+            allowed_attributes = ["id", "created_at", "updated_at"]
             for key, value in kwargs.items():
-                if key != "__class__":
-                    setattr(self, key, value)
+                if key == "created_at" or key == "updated_at":
+                    value = datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%f")
+                if key not in allowed_attributes:
+                    raise KeyError(f"Invalid attribute: {key}")
+                setattr(self, key, value)
         else:
             self.created_at = self.updated_at = datetime.utcnow()
 
