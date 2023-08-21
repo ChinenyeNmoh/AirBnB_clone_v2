@@ -1,11 +1,12 @@
 #!/usr/bin/python3
 """ State Module for HBNB project """
-from os import getenv
+import models
 from models.base_model import BaseModel, Base
 from models.city import City
+from os import getenv
+import sqlalchemy
 from sqlalchemy import Column, String, ForeignKey
 from sqlalchemy.orm import relationship
-import models
 
 
 class State(BaseModel, Base):
@@ -14,6 +15,10 @@ class State(BaseModel, Base):
     name = Column(String(128), nullable=False)
     cities = relationship("City",
                           backref="state", cascade="all, delete,delete-orphan")
+
+    def __init__(self, *args, **kwargs):
+        """initializes state"""
+        super().__init__(*args, **kwargs)
 
     if getenv('HBNB_TYPE_STORAGE') != "db":
         @property
