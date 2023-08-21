@@ -23,7 +23,6 @@ class BaseModel:
             **kwargs (dict): Key/value pairs of attributes.
         """
         self.id = str(uuid4())
-        print("kwargs:", kwargs)
         if kwargs:
             allowed_attributes = ["id", "created_at", "updated_at"]
             for key, value in kwargs.items():
