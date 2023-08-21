@@ -15,7 +15,6 @@ from sqlalchemy import Table
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from os import getenv
-import models
 
 
 association_table = Table("place_amenity", Base.metadata,
@@ -46,6 +45,10 @@ class Place(BaseModel, Base):
     amenities = relationship("Amenity", secondary="place_amenity",
                              viewonly=False)
     amenity_ids = []
+
+    def __init__(self, *args, **kwargs):
+        """initializes Place"""
+        super().__init__(*args, **kwargs)
 
     if getenv("HBNB_TYPE_STORAGE", None) != "db":
         @property
