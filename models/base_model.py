@@ -9,7 +9,7 @@ from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 
 
-class BaseModel:
+class BaseModel(Base):
     """A base class for all hbnb models"""
     id = Column(String(60), primary_key=True, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow(), nullable=False)
@@ -28,7 +28,7 @@ class BaseModel:
             for key, value in kwargs.items():
                 if key == "created_at" or key == "updated_at":
                     value = datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%f")
-                if key not in allowed_attributes:
+                if key not in allowed_attributes or key == "__class__":
                     raise KeyError(f"Invalid attribute: {key}")
                 setattr(self, key, value)
         else:
