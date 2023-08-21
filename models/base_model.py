@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 """This module defines a base class for all models in our hbnb clone"""
-import uuid
+from uuid import uuid4
 from datetime import datetime
 import sys
 from sqlalchemy import Column, Integer, String, DateTime
@@ -16,32 +16,29 @@ class BaseModel:
     updated_at = Column(DateTime, default=datetime.utcnow(), nullable=False)
 
     def __init__(self, *args, **kwargs):
-        """Instatntiates a new model"""
-        self.id = str(uuid.uuid4())
-        if not kwargs:
-            from models import storage
+        """Initialize a new BaseModel.
 
-            self.created_at = datetime.now()
-            self.updated_at = datetime.now()
+        Args:
+            *args (any): Unused.
+            **kwargs (dict): Key/value pairs of attributes.
+        """
+        self.id = str(uuid4())
+        print("kwargs:", kwargs)
+        if kwargs:
+            allowed_attributes = ["id", "created_at", "updated_at"]
+            for key, value in kwargs.items():
+                if key == "created_at" or key == "updated_at":
+                    value = datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%f")
+                if key not in allowed_attributes:
+                    raise KeyError(f"Invalid attribute: {key}")
+                setattr(self, key, value)
         else:
-            if kwargs.get("created_at"):
-                kwargs["created_at"] = datetime.strptime(
-                    kwargs["created_at"], "%Y-%m-%dT%H:%M:%S.%f")
-            else:
-                self.created_at = datetime.now()
-            if kwargs.get("updated_at"):
-                kwargs["updated_at"] = datetime.strptime(
-                    kwargs["updated_at"], "%Y-%m-%dT%H:%M:%S.%f")
-            else:
-                self.updated_at = datetime.now()
-            for key, val in kwargs.items():
-                if "__class__" not in key:
-                    setattr(self, key, val)
+            self.created_at = self.updated_at = datetime.utcnow()
 
     def __str__(self):
         """Returns a string representation of the instance"""
-        cls = (str(type(self)).split('.')[-1]).split('\'')[0]
-        return '[{}] ({}) {}'.format(cls, self.id, self.__dict__)
+        return "[{:s}] ({:s}) {}".format(self.__class__.__name__, self.id,
+                                         self.__dict__)
 
     def save(self):
         """Updates updated_at with current time when instance is changed"""
