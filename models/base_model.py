@@ -28,12 +28,11 @@ class BaseModel(Base):
             for key, value in kwargs.items():
                 if key == "created_at" or key == "updated_at":
                     value = datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%f")
-                if key not in allowed_attributes or key == "__class__":
+                if key not in allowed_attributes:
                     raise KeyError(f"Invalid attribute: {key}")
                 setattr(self, key, value)
         else:
             self.created_at = self.updated_at = datetime.utcnow()
-
 
     def __str__(self):
         """Returns a string representation of the instance"""
