@@ -16,7 +16,7 @@ def teardown(exception):
 
 @app.route("/hbnb_filters", strict_slashes=False)
 def route1():
-    """Displays an HTML with a list of all States.
+    """Displays  HTML with a list of all States.
     """
     url = "10-hbnb_filters.html"
     states = storage.all("State")
