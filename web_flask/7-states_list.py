@@ -49,6 +49,7 @@ def integer_template(n):
     if isinstance(n, int):
         return render_template('5-number.html', n=n)
 
+
 @app.route('/number_odd_or_even/<int:n>', strict_slashes=False)
 def odd_even(n):
     """display odd or even number"""
@@ -71,6 +72,7 @@ def states_list():
 def teardown_app(exception):
     """teardown the app , closes current sqlalchemy session"""
     storage.close()
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port='5000')
